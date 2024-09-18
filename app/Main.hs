@@ -20,15 +20,15 @@ data HttpRequest = HttpRequest
   }
 
 -- Define the HTTP request string
-httpRequest :: String -> String -> String
-httpRequest host path =
+httpRequest :: Uri -> String
+httpRequest uri' =
   unlines
-    ["GET " ++ path ++ " HTTP/1.1", "Host: " ++ host, "Connection: close\n\n"]
+    ["GET " ++ path uri' ++ " HTTP/1.1", "Host: " ++ host uri', "Connection: close\n\n"]
 
 -- Connect to the host and port
 connectToHost :: String -> String -> IO Handle
-connectToHost host port = do
-  addrInfos <- getAddrInfo Nothing (Just host) (Just port)
+connectToHost host' port = do
+  addrInfos <- getAddrInfo Nothing (Just host') (Just port)
   let serverAddr = head addrInfos
   sock <- socket (addrFamily serverAddr) Stream defaultProtocol
   connect sock (addrAddress serverAddr)
@@ -37,16 +37,16 @@ connectToHost host port = do
   return handle
 
 -- Send an HTTP request and get the response
-simpleHttpGet :: String -> String -> IO String
-simpleHttpGet host path = do
-  handle <- connectToHost host "80"
-  hPutStr handle (httpRequest host path)
+simpleHttpGet :: Uri -> IO String
+simpleHttpGet uri' = do
+  handle <- connectToHost (host uri') "80"
+  hPutStr handle (httpRequest uri')
   hGetContents handle
 
 -- Main function to demonstrate fetching a page
 main :: IO ()
 main = do
-  let host = "example.com"
-  let path = "/"
-  response <- simpleHttpGet host path
+  let host' = "example.com"
+  let path' = "/"
+  response <- simpleHttpGet (Uri host' path')
   putStrLn response
