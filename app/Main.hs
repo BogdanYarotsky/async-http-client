@@ -46,7 +46,6 @@ simpleHttpGet uri' = do
 -- Main function to demonstrate fetching a page
 main :: IO ()
 main = do
-  let host' = "example.com"
   let path' = "/"
-  response <- simpleHttpGet (Uri host' path')
+  response <- simpleHttpGet (Uri "example.com" path')
   putStrLn response
